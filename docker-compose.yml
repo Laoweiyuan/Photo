@@ -1,0 +1,39 @@
+# PostgreSQL 18.7（官方 postgres:18.7 镜像，Debian 基底）
+# 启动：docker compose up -d
+name: photo
+
+services:
+  postgres:
+    image: postgres:18.7
+    container_name: photo-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-photo}
+      # 密码只从 .env 读取，缺失则直接启动失败
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?请在 .env 中设置 POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-photo}
+      # PG 18 起默认 PGDATA 为 /var/lib/postgresql/18/docker
+      PGDATA: /var/lib/postgresql/18/docker
+      TZ: ${TZ:-Asia/Shanghai}
+      PGTZ: ${TZ:-Asia/Shanghai}
+    ports:
+      # 仅绑定回环地址，宿主外网无法直连
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      # PG 18 镜像声明的卷路径是 /var/lib/postgresql（不再是 .../data）
+      - pg_data:/var/lib/postgresql
+      # 如需初始化 SQL，取消注释并把脚本放到 docker/postgres/init/
+      # - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      # $$ 转义，交给容器内 shell 读取容器环境变量
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    shm_size: 256mb
+    stop_grace_period: 30s
+
+volumes:
+  pg_data:
+    name: photo_pg_data
