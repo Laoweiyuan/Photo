@@ -18,7 +18,7 @@ services:
       PGTZ: ${TZ:-Asia/Shanghai}
     ports:
       # 仅绑定回环地址，宿主外网无法直连
-      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+      - "127.0.0.1:${POSTGRES_PORT:-15432}:5432"
     volumes:
       # PG 18 镜像声明的卷路径是 /var/lib/postgresql（不再是 .../data）
       - pg_data:/var/lib/postgresql
