@@ -23,7 +23,7 @@ services:
       # PG 18 镜像声明的卷路径是 /var/lib/postgresql（不再是 .../data）
       - pg_data:/var/lib/postgresql
       # 如需初始化 SQL，取消注释并把脚本放到 docker/postgres/init/
-      # - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
       # $$ 转义，交给容器内 shell 读取容器环境变量
       test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
